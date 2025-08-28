@@ -46,51 +46,6 @@ jobs:
           docker tag amazon ${{ secrets.DOCKER_USERNAME }}/amazon:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/amazon:latest
 
-      # # Install Docker Scout
-      # - name: Install Docker Scout
-      #   run: |
-      #     mkdir -p ~/.docker/cli-plugins
-      #     curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
-
-
-      # # Run Docker Scout CVE Scan
-      # - name: Run Docker Scout CVE Scan
-      #   run: |
-      #     echo "🔍 Running Docker Scout scan on $IMAGE_TAG"
-
-      #     # Run scan once and store result
-      #     docker scout cves $IMAGE_TAG --format json > scout-report.json
-
-      #     # Generate HTML report
-      #     echo "<html><body><h2>Docker Scout CVE Report for $IMAGE_TAG</h2><pre>" > scout-report.html
-      #     cat scout-report.json | jq '.' >> scout-report.html
-      #     echo "</pre></body></html>" >> scout-report.html
-
-      #     # Fail only if Critical CVEs are found
-      #     if jq -e '.[] | select(.Severity == "critical")' scout-report.json > /dev/null; then
-      #         echo "❌ Critical vulnerabilities found! Failing pipeline."
-      #         exit 1
-      #     elif jq -e '.[] | select(.Severity == "high")' scout-report.json > /dev/null; then
-      #         echo "⚠️ High vulnerabilities found (not failing pipeline)."
-      #     else
-      #         echo "✅ No high/critical CVEs found."
-      #     fi
-
-
-      # # Deploy container locally (runner host)
-      # - name: Deploy Container
-      #   run: |
-      #     docker rm -f amazon || true
-      #     docker run -d --name amazon -p 80:80 $IMAGE_TAG
-
-      # # Upload scan reports as artifacts
-      # - name: Upload Scan Reports
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: docker-scout-reports
-      #     path: |
-      #       scout-report.json
-      #       scout-report.html
 
       # Send email notification
       - name: Send Email Notification
