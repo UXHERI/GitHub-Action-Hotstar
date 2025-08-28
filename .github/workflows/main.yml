@@ -1,26 +1,109 @@
-name: Build
+name: Build & Deploy
 
 on:
   push:
     branches:
       - main
 
-
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout repo
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+
+      # SonarQube Scan
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Set Docker Image Tag (use GitHub run number as build number)
+      - name: Set Docker Image Tag
+        run: echo "IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/amazon:${{ github.run_number }}" >> $GITHUB_ENV
+
+      # Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker rmi -f amazon $IMAGE_TAG || true
+          docker build -t amazon .
+
+      # Login to DockerHub
+      - name: DockerHub Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Tag & Push Docker Image
+      - name: Tag & Push Docker Image
+        run: |
+          docker tag amazon $IMAGE_TAG
+          docker push $IMAGE_TAG
+          docker tag amazon ${{ secrets.DOCKER_USERNAME }}/amazon:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/amazon:latest
+
+      # Install Docker Scout
+      - name: Install Docker Scout
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
+
+      # Run Docker Scout CVE Scan
+      - name: Run Docker Scout CVE Scan
+        run: |
+          echo "🔍 Running Docker Scout scan on $IMAGE_TAG"
+          docker scout cves $IMAGE_TAG --format json > scout-report.json
+
+          # Generate HTML report
+          echo "<html><body><h2>Docker Scout CVE Report for $IMAGE_TAG</h2><pre>" > scout-report.html
+          cat scout-report.json | jq '.' >> scout-report.html
+          echo "</pre></body></html>" >> scout-report.html
+
+          # Fail if High/Critical CVEs found
+          if docker scout cves $IMAGE_TAG --format json \
+            | jq -e '.[] | select(.Severity == "critical" or .Severity == "high")' > /dev/null; then
+              echo "❌ High or Critical vulnerabilities found! Failing pipeline."
+              exit 1
+          else
+              echo "✅ No high/critical CVEs found."
+          fi
+
+      # Deploy container locally (runner host)
+      - name: Deploy Container
+        run: |
+          docker rm -f amazon || true
+          docker run -d --name amazon -p 80:80 $IMAGE_TAG
+
+      # Upload scan reports as artifacts
+      - name: Upload Scan Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-scout-reports
+          path: |
+            scout-report.json
+            scout-report.html
+
+      # Send email notification
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "Pipeline ${{ job.status }}: ${{ github.workflow }} #${{ github.run_number }}"
+          to: ${{ secrets.EMAIL_USER }}
+          from: ${{ secrets.EMAIL_USER }}
+          content_type: text/html
+          body: |
+            <p>This is a GitHub Actions Amazon CICD pipeline status.</p>
+            <p>Workflow: ${{ github.workflow }}</p>
+            <p>Run Number: ${{ github.run_number }}</p>
+            <p>Status: ${{ job.status }}</p>
+            <p>Commit: ${{ github.sha }}</p>
+            <p>Triggered by: ${{ github.actor }}</p>
+            <p>Build URL: <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+              View Build</a></p>
