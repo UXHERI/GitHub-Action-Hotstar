@@ -56,8 +56,12 @@ jobs:
       - name: Run Docker Scout CVE + Recommendations
         run: |
           echo "🔍 Running Docker Scout scan on $IMAGE_TAG"
-          docker scout cves $IMAGE_TAG --format json > scout-report.json
-          docker scout recommendations $IMAGE_TAG --format json > scout-reco.json
+
+          # Run CVE scan (don't fail if CVEs found)
+          docker scout cves $IMAGE_TAG --format json > scout-report.json || true
+
+          # Run recommendations (don't fail if recommendations exist)
+          docker scout recommendations $IMAGE_TAG --format json > scout-reco.json || true
 
           # Build HTML report
           echo "<html><body>" > scout-report.html
@@ -66,6 +70,7 @@ jobs:
           echo "</pre><h2>Recommendations</h2><pre>" >> scout-report.html
           jq '.' scout-reco.json >> scout-report.html
           echo "</pre></body></html>" >> scout-report.html
+
 
       # ---------------- Deploy Container ----------------
       - name: Deploy Container
