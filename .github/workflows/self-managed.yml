@@ -84,8 +84,9 @@ jobs:
           name: scan-reports
           path: |
             trivyfs.txt
-            scout-report.json
-            scout-report.html
+            trivy-image-report.json
+            trivy-image-report.html
+            
 
       # ---------------- Email Notification ----------------
       - name: Send Email Notification
@@ -108,5 +109,5 @@ jobs:
             <p>Build URL: <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Build</a></p>
           attachments: |
             trivyfs.txt
-            scout-report.json
-            scout-report.html
+            trivy-image-report.json
+            trivy-image-report.html
