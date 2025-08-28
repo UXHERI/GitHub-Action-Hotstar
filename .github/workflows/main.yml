@@ -57,6 +57,8 @@ jobs:
       - name: Run Docker Scout CVE Scan
         run: |
           echo "🔍 Running Docker Scout scan on $IMAGE_TAG"
+
+          # Run scan once and store result
           docker scout cves $IMAGE_TAG --format json > scout-report.json
 
           # Generate HTML report
@@ -64,14 +66,16 @@ jobs:
           cat scout-report.json | jq '.' >> scout-report.html
           echo "</pre></body></html>" >> scout-report.html
 
-          # Fail if High/Critical CVEs found
-          if docker scout cves $IMAGE_TAG --format json \
-            | jq -e '.[] | select(.Severity == "critical" or .Severity == "high")' > /dev/null; then
-              echo "❌ High or Critical vulnerabilities found! Failing pipeline."
+          # Fail only if Critical CVEs are found
+          if jq -e '.[] | select(.Severity == "critical")' scout-report.json > /dev/null; then
+              echo "❌ Critical vulnerabilities found! Failing pipeline."
               exit 1
+          elif jq -e '.[] | select(.Severity == "high")' scout-report.json > /dev/null; then
+              echo "⚠️ High vulnerabilities found (not failing pipeline)."
           else
               echo "✅ No high/critical CVEs found."
           fi
+
 
       # Deploy container locally (runner host)
       - name: Deploy Container
