@@ -53,23 +53,26 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
 
       # ---------------- Run Docker Scout ----------------
-      - name: Run Docker Scout CVE + Recommendations
+      - name: Run Docker Scout Scan (CVE + Recommendations)
         run: |
           echo "🔍 Running Docker Scout scan on $IMAGE_TAG"
 
-          # Run CVE scan (don’t fail if CVEs found)
+          # Run CVE scan (ignore exit code so report is always generated)
           docker scout cves $IMAGE_TAG --format json > scout-report.json || true
 
-          # Run recommendations (don’t fail if recommendations found)
+          # Run recommendations (ignore exit code too)
           docker scout recommendations $IMAGE_TAG --format json > scout-reco.json || true
 
           # Build HTML report
-          echo "<html><body>" > scout-report.html
-          echo "<h2>Docker Scout CVE Report for $IMAGE_TAG</h2><pre>" >> scout-report.html
-          jq '.' scout-report.json >> scout-report.html
-          echo "</pre><h2>Recommendations</h2><pre>" >> scout-report.html
-          jq '.' scout-reco.json >> scout-report.html
-          echo "</pre></body></html>" >> scout-report.html
+          {
+            echo "<html><body>"
+            echo "<h2>Docker Scout CVE Report for $IMAGE_TAG</h2><pre>"
+            jq '.' scout-report.json
+            echo "</pre><h2>Recommendations</h2><pre>"
+            jq '.' scout-reco.json
+            echo "</pre></body></html>"
+          } > scout-report.html
+
 
 
 
