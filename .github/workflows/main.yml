@@ -49,7 +49,9 @@ jobs:
       # Install Docker Scout
       - name: Install Docker Scout
         run: |
+          mkdir -p ~/.docker/cli-plugins
           curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
+
 
       # Run Docker Scout CVE Scan
       - name: Run Docker Scout CVE Scan
