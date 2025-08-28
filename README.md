@@ -94,22 +94,6 @@ sudo systemctl status docker
 
 ---
 
-## Trivy (Vulnerability Scanner)
-
-Docs: [https://trivy.dev/v0.65/getting-started/installation/](https://trivy.dev/v0.65/getting-started/installation/)
-
-```bash
-sudo apt-get install wget apt-transport-https gnupg lsb-release
-wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-sudo apt-get update
-sudo apt-get install -y trivy
-
-
-trivy --version
-```
-
----
 
 ## SonarQube (Docker)
 
@@ -124,29 +108,6 @@ docker run -d --name sonarqube \
 
 ---
 
-## npm Installation
-
-Docs: [https://nodejs.org/en/download/](https://nodejs.org/en/download/)
-
-```bash
-# Download and install nvm:
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-
-# In lieu of restarting the shell
-\. "$HOME/.nvm/nvm.sh"
-
-# Download and install Node.js:
-nvm install 22
-
-# Verify the Node.js version:
-node -v # Should print "v22.18.0"
-nvm current # Should print "v22.18.0"
-
-# Verify npm version:
-npm -v # Should print "10.9.3"
-```
-
-
 
 ## Github Credentials to Store
 
@@ -156,4 +117,4 @@ npm -v # Should print "10.9.3"
 | Email-app-Pass     | EMAIL_PASS   | Secret text   | From app password         |
 | Docker-username    | DOCKER_USERNAME   | your-docker-id   | From your Docker Hub profile       |
 | Docker-username    | DOCKER_PASSWORD   | token   | From your Docker Hub token       |
-| sonar-qube    | follow the same step
+| sonar-qube    | follow the same step | manully  entries

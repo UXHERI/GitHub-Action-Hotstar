@@ -23,13 +23,13 @@ jobs:
 
       # Set Docker Image Tag (use GitHub run number as build number)
       - name: Set Docker Image Tag
-        run: echo "IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/amazon:${{ github.run_number }}" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=${{ secrets.DOCKER_USERNAME }}/hotstar:${{ github.run_number }}" >> $GITHUB_ENV
 
       # Build Docker Image
       - name: Build Docker Image
         run: |
-          docker rmi -f amazon $IMAGE_TAG || true
-          docker build -t amazon .
+          docker rmi -f hotstar $IMAGE_TAG || true
+          docker build -t hotstar .
 
       # Login to DockerHub
       - name: DockerHub Login
@@ -41,10 +41,10 @@ jobs:
       # Tag & Push Docker Image
       - name: Tag & Push Docker Image
         run: |
-          docker tag amazon $IMAGE_TAG
+          docker tag hotstar $IMAGE_TAG
           docker push $IMAGE_TAG
-          docker tag amazon ${{ secrets.DOCKER_USERNAME }}/amazon:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/amazon:latest
+          docker tag hotstar ${{ secrets.DOCKER_USERNAME }}/hotstar:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/hotstar:latest
 
 
       # Send email notification
@@ -59,7 +59,7 @@ jobs:
           to: ${{ secrets.EMAIL_USER }}
           from: ${{ secrets.EMAIL_USER }}
           html_body: |
-            <p>This is a GitHub Actions Amazon CICD pipeline status.</p>
+            <p>This is a GitHub Actions Hotstar CICD pipeline status.</p>
             <p>Workflow: ${{ github.workflow }}</p>
             <p>Run Number: ${{ github.run_number }}</p>
             <p>Status: ${{ job.status }}</p>
