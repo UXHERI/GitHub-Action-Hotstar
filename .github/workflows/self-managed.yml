@@ -52,26 +52,21 @@ jobs:
           mkdir -p ~/.docker/cli-plugins
           curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
 
-      # ---------------- Run Docker Scout ----------------
-      - name: Run Docker Scout Scan (CVE + Recommendations)
+      # ---------------- Run Trivy scan ----------------
+      - name: Run Trivy Image Scan
         run: |
-          echo "🔍 Running Docker Scout scan on $IMAGE_TAG"
+          echo "🔍 Running Trivy image scan on $IMAGE_TAG"
 
-          # Run CVE scan (ignore exit code so report is always generated)
-          docker scout cves $IMAGE_TAG --format json > scout-report.json || true
+          # Scan the image for CVEs (ignore exit code so pipeline doesn’t fail on vulnerabilities)
+          trivy image --exit-code 0 --format json -o trivy-image-report.json $IMAGE_TAG
 
-          # Run recommendations (ignore exit code too)
-          docker scout recommendations $IMAGE_TAG --format json > scout-reco.json || true
-
-          # Build HTML report
+          # Convert JSON to HTML
           {
             echo "<html><body>"
-            echo "<h2>Docker Scout CVE Report for $IMAGE_TAG</h2><pre>"
-            jq '.' scout-report.json
-            echo "</pre><h2>Recommendations</h2><pre>"
-            jq '.' scout-reco.json
+            echo "<h2>Trivy Image Scan Report for $IMAGE_TAG</h2><pre>"
+            jq '.' trivy-image-report.json
             echo "</pre></body></html>"
-          } > scout-report.html
+          } > trivy-image-report.html
 
 
 
