@@ -83,14 +83,14 @@ jobs:
       #     docker rm -f amazon || true
       #     docker run -d --name amazon -p 80:80 $IMAGE_TAG
 
-      # Upload scan reports as artifacts
-      - name: Upload Scan Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-scout-reports
-          path: |
-            scout-report.json
-            scout-report.html
+      # # Upload scan reports as artifacts
+      # - name: Upload Scan Reports
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: docker-scout-reports
+      #     path: |
+      #       scout-report.json
+      #       scout-report.html
 
       # Send email notification
       - name: Send Email Notification
@@ -103,8 +103,7 @@ jobs:
           subject: "Pipeline ${{ job.status }}: ${{ github.workflow }} #${{ github.run_number }}"
           to: ${{ secrets.EMAIL_USER }}
           from: ${{ secrets.EMAIL_USER }}
-          content_type: text/html
-          body: |
+          html_body: |
             <p>This is a GitHub Actions Amazon CICD pipeline status.</p>
             <p>Workflow: ${{ github.workflow }}</p>
             <p>Run Number: ${{ github.run_number }}</p>
