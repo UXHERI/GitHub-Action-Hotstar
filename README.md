@@ -20,7 +20,6 @@ This README collects useful commands and links to install common DevOps, CI/CD, 
 - [Prerequisites](#prerequisites)
 - [System Update & Common Packages](#system-update--common-packages)
 - [Docker](#docker)
-- [Trivy (Vulnerability Scanner)](#trivy-vulnerability-scanner)
 - [SonarQube (Docker)](#sonarqube-docker)
 - [npm Installation](#npm-installation)
 
