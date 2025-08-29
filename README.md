@@ -6,6 +6,8 @@ This README collects useful commands and links to install common DevOps, CI/CD, 
 > **Note:** Replace all `<VERSION>`, `<your-server-ip>`, `<jenkins-ip>`, `<sonar-ip-address>`, `<ACCOUNT_ID>`, and similar placeholders with your actual values.
 
 ---
+![img alt](https://github.com/harishnshetty/GitHub-Action-Hotstar/blob/f866013dc49142a8345b5bd1b6e492dc658411cc/image.png)
+---
 
 ## For more projects, check out  
 [https://harishnshetty.github.io/projects.html](https://harishnshetty.github.io/projects.html)
